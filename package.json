@@ -1,0 +1,54 @@
+{
+  "name": "@orbifold/entities",
+  "author": {
+    "email": "info@orbifold.net",
+    "name": "Orbifold Consulting (Francois Vanderseypen)",
+    "url": "https://orbifold.net"
+  },
+  "description": "A collection of entities, models and messages shared across packages.",
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Qwiery/qwiery-entities.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Qwiery/qwiery-entities/issues",
+    "email": "info@orbifold.net"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": false,
+  "version": "4.0.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui --coverage",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.3",
+    "@vitest/coverage-v8": "^1.0.1",
+    "@vitest/ui": "^1.0.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.6.4",
+    "vitest": "^1.0.1",
+    "vite-plugin-node-polyfills": "^0.17.0"
+  },
+  "dependencies": {
+    "@orbifold/utils": "4.1.0",
+    "lodash": "^4.17.21"
+
+    }
+
+}
