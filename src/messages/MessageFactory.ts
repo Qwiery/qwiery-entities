@@ -1,18 +1,23 @@
-import {CommandMessage} from "./CommandMessage";
-import {ErrorMessage} from "./ErrorMessage";
-import {TextMessage} from "./TextMessage";
-import {Message} from "./Message";
-
-
+import { CommandMessage } from "./CommandMessage";
+import { ErrorMessage } from "./ErrorMessage";
+import { TextMessage } from "./TextMessage";
+import { Message } from "./Message";
+import { Utils } from "@orbifold/utils";
+/**
+ * Represents a factory class for creating different types of messages.
+ */
 export class MessageFactory {
   static fromString(text: string): TextMessage {
     return new TextMessage(text);
   }
   static fromError(error: Error | string): ErrorMessage {
     if (typeof error === "string") {
-      return new ErrorMessage(error);
+      return new ErrorMessage(new Error(<string>error));
     }
-    return new ErrorMessage(error.message);
+    if (error instanceof Error) {
+      return new ErrorMessage(<Error>error);
+    }
+    throw new Error("Invalid Error type");
   }
   static fromAny(something: any): Message | Message[] | null {
     if (something instanceof Message) {
@@ -21,8 +26,8 @@ export class MessageFactory {
     if (something instanceof Error) {
       return MessageFactory.fromError(something);
     }
-    if (typeof something === "string") {
-      return MessageFactory.fromString(something);
+    if (Utils.isSimpleValue(something)) {
+      return MessageFactory.fromString(something.toString());
     }
     if (something instanceof Array) {
       if (something.length === 0) {
@@ -43,5 +48,20 @@ export class MessageFactory {
   }
   static fromCommand(comandName: string, args: string[] = []): CommandMessage {
     return new CommandMessage(comandName, args);
+  }
+  static fromJson(json: any): Message {
+    if (Utils.isEmpty(json)) {
+      throw new Error("JSON is empty");
+    }
+    if (json.typeName === "ErrorMessage") {
+      return ErrorMessage.fromJson(json);
+    }
+    if (json.typeName === "TextMessage") {
+      return TextMessage.fromJson(json);
+    }
+    if (json.typeName === "CommandMessage") {
+      return CommandMessage.fromJson(json);
+    }
+    throw new Error("Unknown message type");
   }
 }

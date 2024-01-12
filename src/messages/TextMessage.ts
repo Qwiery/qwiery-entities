@@ -1,11 +1,10 @@
 import { Utils } from "@orbifold/utils";
-import {Message} from "./Message";
+import { Message } from "./Message";
 
 /**
  * Represents a text message.
  */
-
-export   class TextMessage extends Message {
+export class TextMessage extends Message {
   public typeName: string = "TextMessage";
   constructor(public text: string = "", id: string = Utils.id()) {
     super(id);
