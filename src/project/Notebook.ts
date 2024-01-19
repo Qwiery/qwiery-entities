@@ -6,8 +6,16 @@ import { CodeMessage, Message, TextMessage } from "..";
  * The cells are organized in the correct order.
  */
 export class Notebook {
+  /**
+   * For (de)serialization.
+   */
   public typeName = "Notebook";
-  public cells: NotebookCell[] = [];
+
+  private _cells: NotebookCell[] = [];
+  
+  public get cells(): NotebookCell[] {
+    return this._cells;
+  }
 
   constructor(
     public name: string = "New Notebook",
@@ -41,6 +49,17 @@ export class Notebook {
     }
   }
 
+  /**
+   * Adds an output cell to the notebook.
+   * 
+   * @param cell - The output cell to be added.
+   * @returns The added output cell.
+   * @throws Error if the cell is null or undefined.
+   * @throws Error if the cell does not have a reference cell id.
+   * @throws Error if the given cell is not an output cell.
+   * @throws Error if the reference input cell cannot be found.
+   * @throws Error if trying to add an output cell after an output cell.
+   */
   public addOutputCell(cell: NotebookCell) {
     if (!cell) {
       throw new Error("Cannot add an output cell without a cell.");
@@ -78,10 +97,26 @@ export class Notebook {
     return cell;
   }
 
+  /**
+   * Adds an output message to the notebook.
+   * 
+   * @param message - The message to be added as an output.
+   * @param inputCellId - The ID of the input cell associated with the output message.
+   * @returns The added output cell.
+   */
   public addOutputMessage(message: Message, inputCellId: string) {
     const cell = new NotebookCell(this, message, "output", inputCellId);
     return this.addOutputCell(cell);
   }
+
+  /**
+   * Adds an input message to the notebook.
+   * 
+   * @param message - The message to be added.
+   * @param referenceCellId - The ID of the reference cell. Defaults to null.
+   * @param beforeOrAfter - Specifies whether to add the cell before or after the reference cell. Defaults to "after".
+   * @returns The added input cell.
+   */
   public addInputMessage(
     message: Message,
     referenceCellId: string | null = null,
@@ -90,6 +125,7 @@ export class Notebook {
     const cell = new NotebookCell(this, message, "input");
     return this.addInputCell(cell, referenceCellId, beforeOrAfter);
   }
+  
   /**
    * Adds a new input cell.
    * @param cell {NotebookCell} The cell to add. If none given a CodeMessage is created.
@@ -142,23 +178,59 @@ export class Notebook {
     }
     return cell;
   }
+
+  /**
+   * Returns an array of id' of the cells in the notebook.
+   * Note that the order is the same as the order of the cells.
+   * @returns {string[]} An array of cell IDs.
+   */
   public get idSequence() {
     return this.cells.map((c) => c.id);
   }
+  
+  /**
+   * Retrieves a cell from the notebook by its ID.
+   * @param id - The ID of the cell to retrieve.
+   * @returns The cell with the specified ID, or null if not found.
+   */
   public getCellById(id: string) {
     return this.cells.find((c) => c.id === id) || null;
   }
+  
+  /**
+   * Retrieves the input cell with the specified ID.
+   * @param id - The ID of the input cell.
+   * @returns The input cell with the specified ID, or null if not found.
+   */
   public getInputCell(id: string) {
     return (
       this.cells.find((c) => c.id === id && c.direction === "input") || null
     );
   }
+  
+  /**
+   * Checks if a cell with the specified ID exists in the notebook.
+   * @param id - The ID of the cell to check.
+   * @returns True if a cell with the specified ID exists, false otherwise.
+   */
   public cellIdExists(id: string) {
     return this.cells.some((c) => c.id === id);
   }
+
+  /**
+   * Checks if a cell has output based on its ID.
+   * @param id - The ID of the cell to check.
+   * @returns True if the cell has output, false otherwise.
+   */
   public cellHasOutput(id: string) {
     return this.cells.some((c) => c.inputCellId === id);
   }
+
+  /**
+   * Retrieves the output cell with the specified ID.
+   * @param id The ID of the input cell.
+   * @returns The output cell matching the ID, or null if not found.
+   */
   public getOutputCell(id: string) {
     return (
       this.cells.find(
@@ -166,10 +238,21 @@ export class Notebook {
       ) || null
     );
   }
+  
+  /**
+   * Retrieves the output of a cell with the specified ID.
+   * @param id - The ID of the cell.
+   * @returns The output of the cell.
+   */
   public getCellOutput(id: string) {
     return this.getOutputCell(id);
   }
 
+  /**
+   * Retrieves the output message associated with the specified id.
+   * @param id - The id of the output cell.
+   * @returns The output message, or null if the output cell is not found.
+   */
   public getOutputMessage(id: string) {
     const foundCell = this.getOutputCell(id);
     if (!foundCell) {
@@ -177,7 +260,11 @@ export class Notebook {
     }
     return foundCell.message;
   }
- 
+
+  /**
+   * Deletes the output cell associated with the specified input cell ID.
+   * @param inputCellId The ID of the input cell.
+   */
   public deleteOutput(inputCellId: string) {
     const outputIndex = this.cells.findIndex(
       (c) => c.inputCellId === inputCellId && c.direction === "output"
@@ -186,6 +273,11 @@ export class Notebook {
       this.cells.splice(outputIndex, 1);
     }
   }
+  
+  /**
+   * Deletes an input cell from the notebook as well as the output cell if present.
+   * @param inputCellId - The ID of the input cell to delete.
+   */
   public deleteInput(inputCellId: string) {
     this.deleteOutput(inputCellId);
     const inputIndex = this.cells.findIndex(
@@ -194,5 +286,13 @@ export class Notebook {
     if (inputIndex > -1) {
       this.cells.splice(inputIndex, 1);
     }
+  }
+
+  updateCell(message: Message) {
+    const cell = this.getCellById(message.id);
+    if (!cell) {
+      throw new Error(`Cannot find cell with id ${message.id}.`);
+    }
+    cell.message = message;
   }
 }

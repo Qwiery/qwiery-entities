@@ -4,6 +4,15 @@ import { Message } from "..";
 export class NotebookCell {
   public typeName = "NotebookCell";
   public hasFocus: boolean = false;
+
+  /**
+   * The execution id or counter of the notebook cell.
+   * This is null by default, and is set when the cell is executed.
+   */
+  public executionId: string | null = null;
+
+  public colSpan: number = 4;
+  public hasHighlight: boolean = false;
   /**
    * Gets the id of the notebook cell.
    * This is always the id of the message.

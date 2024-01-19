@@ -6,11 +6,13 @@ export * from "./messages/TextMessage";
 export * from "./messages/WarningMessage";
 export * from "./messages/CodeMessage";
 export * from "./messages/ImageMessage";
+export * from "./messages/MarkdownMessage";
+export * from "./messages/DataMessage";
 
+import type { TerminalIO, ExecutionFunction, CommandFunction } from "./Types";
+export { TerminalIO, ExecutionFunction, CommandFunction };
 
-import type {TerminalIO,ExecutionFunction,CommandFunction} from "./Types";
-export {TerminalIO,ExecutionFunction,CommandFunction};export * from "./project/CypherDataset";
-
+export * from "./project/CypherDataset";
 export * from "./project/Dataset";
 export * from "./project/Exploration";
 export * from "./project/GraphDataset";

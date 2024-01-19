@@ -7,7 +7,6 @@ import { Message } from "./Message";
  */
 export class CodeMessage extends Message {
 	public typeName: string = "CodeMessage";
-
 	constructor(public code: string = "", public language: string = "javascript", id: string = Utils.id()) {
 		super(id);
 	}
