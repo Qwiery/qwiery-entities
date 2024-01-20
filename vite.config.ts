@@ -21,9 +21,10 @@ export default defineConfig({
     ],
   },
   build: {
+    minify: false,
     rollupOptions: {
       external: [
-        "@orbifold/utils", 
+        "@orbifold/utils",
         "lodash"],
     },
     lib: {
