@@ -87,4 +87,26 @@ describe("Notebooks", () => {
     nb.deleteInput(c0.id);
     expect(nb.cells.length).toBe(0);
   });
+
+  it("should navigate input cells", () => {
+    const nb = new Notebook();
+    const i1 = new TextMessage("Some input here " + Math.random());
+    const o1 = new TextMessage("Some output here " + Math.random());
+    const i2 = new TextMessage("Some input here " + Math.random());
+    const o2 = new TextMessage("Some output here " + Math.random());
+    nb.addCell(new NotebookCell(nb, i1, "input"));
+    nb.addCell(new NotebookCell(nb, o1, "output",i1.id));
+    nb.addCell(new NotebookCell(nb, i2, "input"));
+    nb.addCell(new NotebookCell(nb, o2, "output",i2.id));
+
+    expect(nb.getPreviousInputCell("abc")).toBe(null);
+    expect(nb.getNextInputCell("abc")).toBe(null);
+    expect(nb.getPreviousInputCell(i1.id)).toBe(null);
+    expect(nb.getNextInputCellId(i1.id)).toBe(i2.id);
+    expect(nb.getPreviousInputCellId(i2.id)).toBe(i1.id);
+    expect(nb.getNextInputCellId(i2.id)).toBe(null);
+    expect(nb.getPreviousInputCellId("abc")).toBe(null);
+
+
+  })
 });

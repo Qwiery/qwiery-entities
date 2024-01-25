@@ -10,7 +10,10 @@ export class NotebookCell {
    * This is null by default, and is set when the cell is executed.
    */
   public executionId: string | null = null;
-
+  public x: number = 0;
+  public y: number = 0;
+  public w: number = 0;
+  public h: number = 0;
   public colSpan: number = 4;
   public hasHighlight: boolean = false;
   /**

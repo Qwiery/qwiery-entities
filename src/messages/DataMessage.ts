@@ -31,6 +31,8 @@ export class DataMessage extends Message {
     }
     const message = new DataMessage(json.data);
     message.id = json.id || Utils.id();
+    message.renderType = json.renderType || "data";
+    message.renderOptions = json.renderOptions || {};
     return message;
   }
 
