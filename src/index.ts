@@ -8,6 +8,7 @@ export * from "./messages/CodeMessage";
 export * from "./messages/ImageMessage";
 export * from "./messages/MarkdownMessage";
 export * from "./messages/DataMessage";
+export * from "./messages/DebugMessage";
 
 import type { TerminalIO, ExecutionFunction, CommandFunction } from "./Types";
 export { TerminalIO, ExecutionFunction, CommandFunction };

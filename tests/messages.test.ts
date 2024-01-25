@@ -8,6 +8,7 @@ describe("Messages", () => {
     const m2 = Message.fromJson(JSON.parse(j));
     expect(m2.id).toEqual(m.id);
   });
+
   it("should serialize things", () => {
     const m = new TextMessage("abc");
     const j = JSON.stringify(m);

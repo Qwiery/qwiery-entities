@@ -10,6 +10,9 @@ export class TextMessage extends Message {
     super(id);
   }
 
+  static empty(): TextMessage {
+    return new TextMessage();
+  }
   static fromString(text: string): TextMessage {
     return new TextMessage(text);
   }

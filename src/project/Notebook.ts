@@ -1,6 +1,7 @@
 import { Utils } from "@orbifold/utils";
 import { NotebookCell } from "./NotebookCell";
 import { CodeMessage, Message, TextMessage } from "..";
+import _ from "lodash";
 
 /**
  * The cells are organized in the correct order.
@@ -25,7 +26,56 @@ export class Notebook {
 	}
 
 	/**
-	 * Ensures tha the cell is positioned correctly with respect to the given reference.
+	 * A linear notebook is one where the cells are organized in the correct order.
+	 * If false it means the cells should be rendered through a dashboard-like floating layout.
+	 * @type {boolean}
+	 */
+	public linear: boolean = true;
+
+	/**
+	 * Adds an output message to the notebook.
+	 *
+	 * @param message - The message to be added as an output.
+	 * @param inputCellId - The ID of the input cell associated with the output message.
+	 * @returns The added output cell.
+	 */
+	public addOutput(message: Message, cellId: string) {
+		const cell = this.getCellById(cellId);
+		if (!cell) {
+			throw new Error(`Cannot find cell with id ${cellId}.`);
+		}
+		cell.outputMessages.push(message);
+		return cell;
+	}
+
+	public setOutput(m: Message | Message[], cellId: string) {
+		const cell = this.getCellById(cellId);
+		if (!cell) {
+			throw new Error(`Cannot find cell with id ${cellId}.`);
+		}
+		let msgs: Message[];
+		if (!_.isArray(m)) {
+			msgs = [<Message>m];
+		} else {
+			msgs = m as Message[];
+		}
+		cell.outputMessages = msgs;
+		return cell;
+	}
+
+	public addMessage(message: Message, referenceCellId: string | null = null,
+					  beforeOrAfter: string = "after") {
+		return this.addCell(new NotebookCell(this, message), referenceCellId, beforeOrAfter);
+	}
+
+	public addInputOutput(input: Message, output: Message, referenceCellId: string | null = null,
+						  beforeOrAfter: string = "after") {
+		const cell = new NotebookCell(this, input, [output]);
+		return this.addCell(cell, referenceCellId, beforeOrAfter);
+	}
+
+	/**
+	 * Adds a new input cell.
 	 * @param cell {NotebookCell} The cell to add. If none given a CodeMessage is created.
 	 * @param referenceCellId {string} The id of the cell before or after which the new cell should be added.
 	 * @param beforeOrAfter {string} Either "before" or "after". Default is "after".
@@ -35,133 +85,21 @@ export class Notebook {
 		referenceCellId: string | null = null,
 		beforeOrAfter: string = "after",
 	) {
+
 		if (!cell) {
-			cell = new NotebookCell(this, new TextMessage(""), "input");
+			cell = new NotebookCell(this, TextMessage.fromString(""));
 		}
-		if (cell.direction === "output") {
-			if (!cell.inputCellId) {
-				throw new Error(
-					"Cannot add an output cell without a reference cell id.",
-				);
-			}
-			return this.addOutputCell(cell);
-		} else {
-			return this.addInputCell(cell, referenceCellId, beforeOrAfter);
-		}
-	}
 
-	/**
-	 * Adds an output cell to the notebook.
-	 *
-	 * @param cell - The output cell to be added.
-	 * @returns The added output cell.
-	 * @throws Error if the cell is null or undefined.
-	 * @throws Error if the cell does not have a reference cell id.
-	 * @throws Error if the given cell is not an output cell.
-	 * @throws Error if the reference input cell cannot be found.
-	 * @throws Error if trying to add an output cell after an output cell.
-	 */
-	public addOutputCell(cell: NotebookCell) {
-		if (!cell) {
-			throw new Error("Cannot add an output cell without a cell.");
-		}
-		if (!cell.inputCellId) {
-			throw new Error("Cannot add an output cell without a reference cell id.");
-		}
-		const referenceCellId = cell.inputCellId;
-		if (cell.direction !== "output") {
-			throw new Error("Given cell should be an output.");
-		}
-		const inputCell = this.getCellById(referenceCellId);
-		if (!inputCell) {
-			throw new Error(
-				`Cannot find a reference input cell with id ${referenceCellId}.`,
-			);
-		}
-		if (inputCell.direction !== "input") {
-			throw new Error(`Cannot add an output cell after an output cell.`);
-		}
-		const inputIndex = this.cells.findIndex(
-			(c) => c.id === referenceCellId && c.direction === "input",
-		);
-		// check wether the output is new or replacing an existing one
-		// note that we check the reference id here and not the cell id
-		// this is because the id of the cell and the message id are identical
-		const outputIndex = this.cells.findIndex(
-			(c) => c.inputCellId === referenceCellId && c.direction === "output",
-		);
-		if (outputIndex > -1) {
-			this.cells.splice(outputIndex, 1, cell);
-		} else {
-			this.cells.splice(inputIndex + 1, 0, cell);
-		}
-		return cell;
-	}
-
-	/**
-	 * Adds an output message to the notebook.
-	 *
-	 * @param message - The message to be added as an output.
-	 * @param inputCellId - The ID of the input cell associated with the output message.
-	 * @returns The added output cell.
-	 */
-	public addOutputMessage(message: Message, inputCellId: string) {
-		const cell = new NotebookCell(this, message, "output", inputCellId);
-		return this.addOutputCell(cell);
-	}
-
-	/**
-	 * Adds an input message to the notebook.
-	 *
-	 * @param message - The message to be added.
-	 * @param referenceCellId - The ID of the reference cell. Defaults to null.
-	 * @param beforeOrAfter - Specifies whether to add the cell before or after the reference cell. Defaults to "after".
-	 * @returns The added input cell.
-	 */
-	public addInputMessage(
-		message: Message,
-		referenceCellId: string | null = null,
-		beforeOrAfter: string = "after",
-	) {
-		const cell = new NotebookCell(this, message, "input");
-		return this.addInputCell(cell, referenceCellId, beforeOrAfter);
-	}
-
-	/**
-	 * Adds a new input cell.
-	 * @param cell {NotebookCell} The cell to add. If none given a CodeMessage is created.
-	 * @param referenceCellId {string} The id of the cell before or after which the new cell should be added.
-	 * @param beforeOrAfter {string} Either "before" or "after". Default is "after".
-	 */
-	public addInputCell(
-		cell: NotebookCell | null = null,
-		referenceCellId: string | null = null,
-		beforeOrAfter: string = "after",
-	) {
-		if (!cell) {
-			cell = new NotebookCell(this, new TextMessage(""), "input");
-		} else {
-			if (cell.direction === "output") {
-				throw new Error("Cannot add an output cell through this method.");
-			}
-		}
-		if (cell.inputCellId) {
-			throw new Error("Cannot add an input cell with an inputCellId.");
-		}
 		if (Utils.isEmpty(referenceCellId)) {
 			this.cells.push(cell);
 		} else {
 			// the id with the direction forms in a way a primary key
 			const inputIndex = this.cells.findIndex(
-				(c) => c.id === referenceCellId && c.direction === "input",
-			);
-			// note that we check the reference id here and not the cell id
-			// this is because the id of the cell and the message id are identical
-			const outputIndex = this.cells.findIndex(
-				(c) => c.inputCellId === referenceCellId && c.direction === "output",
+				(c) => c.id === referenceCellId,
 			);
 
-			if (inputIndex === -1 && outputIndex === -1) {
+
+			if (inputIndex === -1) {
 				throw new Error(
 					`Cannot find reference cell with id ${referenceCellId}.`,
 				);
@@ -169,7 +107,7 @@ export class Notebook {
 			// after the output if available, but before always means before the input
 			if (beforeOrAfter === "after") {
 				this.cells.splice(
-					(outputIndex > 0 ? outputIndex : inputIndex) + 1,
+					inputIndex + 1,
 					0,
 					cell,
 				);
@@ -198,19 +136,9 @@ export class Notebook {
 		return this.cells.find((c) => c.id === id) || null;
 	}
 
-	/**
-	 * Retrieves the input cell with the specified ID.
-	 * @param id - The ID of the input cell.
-	 * @returns The input cell with the specified ID, or null if not found.
-	 */
-	public getInputCell(id: string) {
-		return (
-			this.cells.find((c) => c.id === id && c.direction === "input") || null
-		);
-	}
 
-	public getInputCells() {
-		return this.cells.filter((c) => c.direction === "input");
+	public getInputMessages() {
+		return this.cells.map((c) => c.inputMessage);
 	}
 
 	/**
@@ -228,29 +156,25 @@ export class Notebook {
 	 * @returns True if the cell has output, false otherwise.
 	 */
 	public cellHasOutput(id: string) {
-		return this.cells.some((c) => c.inputCellId === id);
+		const cell = this.getCellById(id);
+		if (!cell) {
+			return false;
+		}
+		return cell.outputMessages.length > 0;
 	}
 
-	/**
-	 * Retrieves the output cell with the specified ID.
-	 * @param id The ID of the input cell.
-	 * @returns The output cell matching the ID, or null if not found.
-	 */
-	public getOutputCell(id: string) {
-		return (
-			this.cells.find(
-				(c) => c.inputCellId === id && c.direction === "output",
-			) || null
-		);
-	}
 
 	/**
 	 * Retrieves the output of a cell with the specified ID.
 	 * @param id - The ID of the cell.
 	 * @returns The output of the cell.
 	 */
-	public getCellOutput(id: string) {
-		return this.getOutputCell(id);
+	public getOutputMessages(id: string) {
+		const cell = this.getCellById(id);
+		if (!cell) {
+			return null;
+		}
+		return cell.outputMessages;
 	}
 
 	/**
@@ -259,99 +183,84 @@ export class Notebook {
 	 * @returns The output message, or null if the output cell is not found.
 	 */
 	public getOutputMessage(id: string) {
-		const foundCell = this.getOutputCell(id);
-		if (!foundCell) {
+		const output = this.getOutputMessages(id);
+		if (!output) {
 			return null;
 		}
-		return foundCell.message;
+		return output[0];
 	}
 
 	/**
 	 * Deletes the output cell associated with the specified input cell ID.
-	 * @param inputCellId The ID of the input cell.
+	 * @param cellId
 	 */
-	public deleteOutput(inputCellId: string) {
-		const outputIndex = this.cells.findIndex(
-			(c) => c.inputCellId === inputCellId && c.direction === "output",
-		);
-		if (outputIndex > -1) {
-			this.cells.splice(outputIndex, 1);
+	public clearOutput(cellId: string) {
+		const cell = this.getCellById(cellId);
+		if (!cell) {
+			return;
 		}
+		cell.outputMessages = [];
 	}
 
-	/**
-	 * Deletes an input cell from the notebook as well as the output cell if present.
-	 * @param inputCellId - The ID of the input cell to delete.
-	 */
-	public deleteInput(inputCellId: string) {
-		this.deleteOutput(inputCellId);
-		const inputIndex = this.cells.findIndex(
-			(c) => c.id === inputCellId && c.direction === "input",
-		);
-		if (inputIndex > -1) {
-			this.cells.splice(inputIndex, 1);
-		}
-	}
 
-	updateCell(message: Message) {
+	setInput(message: Message) {
 		const cell = this.getCellById(message.id);
 		if (!cell) {
 			throw new Error(`Cannot find cell with id ${message.id}.`);
 		}
-		cell.message = message;
+		cell.inputMessage = message;
+		return cell;
 	}
 
-	public deleteAllOutput() {
-		const ids = this.cells.map((c) => c.id);
-		ids.forEach((id) => this.deleteOutput(id));
+	public deleteOutputMessage(messageId: string) {
+		const cell = this.getCellById(messageId);
+		if (!cell) {
+			throw new Error(`Cannot find cell with id ${messageId}.`);
+		}
+		const index = cell.outputMessages.findIndex(m => m.id === messageId);
+		if (index === -1) {
+			throw new Error(`Cannot find output message with id ${messageId}.`);
+		}
+		cell.outputMessages.splice(index, 1);
+		return cell;
 	}
 
-	public getNextInputCellId(cellId: string) {
-		const currentCell = this.getInputCell(cellId);
+	public getNextCellId(cellId: string) {
+		const currentCell = this.getCellById(cellId);
 		if (!currentCell) {
 			return null;
 		}
-		const inputCells = this.getInputCells();
-		const currentIndex = inputCells.indexOf(currentCell);
+		const currentIndex = this.cells.indexOf(currentCell);
 		const nextIndex = currentIndex + 1;
-		if (nextIndex >= inputCells.length) {
+		if (nextIndex >= this.cells.length) {
 			return null;
 		}
-		return inputCells[nextIndex].id;
+		return this.cells[nextIndex].id;
 	}
 
-	public getNextInputCell(cellId: string) {
-		const nextId = this.getNextInputCellId(cellId);
-		if (!nextId) {
-			return null;
-		}
-		return this.getInputCell(nextId);
-	}
 
-	public getPreviousInputCellId(cellId: string) {
-		const currentCell = this.getInputCell(cellId);
+	public getPreviousCellId(cellId: string) {
+		const currentCell = this.getCellById(cellId);
 		if (!currentCell) {
 			return null;
 		}
-		const inputCells = this.getInputCells();
-		const currentIndex = inputCells.indexOf(currentCell);
+		const currentIndex = this.cells.indexOf(currentCell);
 		const previousIndex = currentIndex - 1;
 		if (previousIndex < 0) {
 			return null;
 		}
-		return inputCells[previousIndex].id;
+		return this.cells[previousIndex].id;
 	}
 
-	/**
-	 * Retrieves the previous input cell.
-	 * @param cellId {string} The id of the cell to get the previous input cell for.
-	 * @return {NotebookCell | null}
-	 */
-	public getPreviousInputCell(cellId: string): NotebookCell | null {
-		const previousId = this.getPreviousInputCellId(cellId);
-		if (!previousId) {
-			return null;
+	public deleteCell(cellId: string) {
+		const cell = this.getCellById(cellId);
+		if (!cell) {
+			return;
 		}
-		return this.getInputCell(previousId);
+		const index = this.cells.indexOf(cell);
+		if (index === -1) {
+			return;
+		}
+		this.cells.splice(index, 1);
 	}
 }
