@@ -4,7 +4,7 @@ import {
 	MessageFactory,
 	TextMessage,
 	Notebook,
-	NotebookCell,
+	NotebookCell, ErrorMessage,
 } from "../src";
 import { DebugMessage } from "../src/messages/DebugMessage";
 
@@ -91,7 +91,21 @@ describe("Notebooks", () => {
 		expect(nb.getPreviousCellId(i2.id)).toBe(i1.id);
 		expect(nb.getNextCellId(i2.id)).toBe(null);
 		expect(nb.getPreviousCellId("abc")).toBe(null);
+	});
 
+	it("should serialize notebooks", () => {
+		const nb = new Notebook();
+		let c = nb.addInputOutput(TextMessage.fromString("abc"), ErrorMessage.fromString("error"));
+		c.x = 42
+		c.y = 43
+		let json = nb.toJSON();//?
+		let nbr = Notebook.fromJson(json);//?
+		expect(nbr).toBeInstanceOf(Notebook);
+		expect(nbr.cells).toHaveLength(1);
+		expect(nbr.cells[0].inputMessage).toBeInstanceOf(TextMessage);
+		expect(nbr.cells[0].outputMessages[0]).toBeInstanceOf(ErrorMessage);
+		expect(nbr.cells[0].x).toEqual(42);
+		expect(nbr.cells[0].y).toEqual(43);
 
 	});
 });

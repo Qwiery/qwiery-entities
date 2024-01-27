@@ -9,6 +9,7 @@ export * from "./messages/ImageMessage";
 export * from "./messages/MarkdownMessage";
 export * from "./messages/DataMessage";
 export * from "./messages/DebugMessage";
+export * from "./messages/CypherMessage";
 
 import type { TerminalIO, ExecutionFunction, CommandFunction } from "./Types";
 export { TerminalIO, ExecutionFunction, CommandFunction };

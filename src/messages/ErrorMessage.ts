@@ -18,4 +18,7 @@ export class ErrorMessage extends TextMessage {
 	static fromString(msg: string): ErrorMessage {
 		return new ErrorMessage(new Error(msg));
 	}
+	public static fromJson(json: any): ErrorMessage {
+		return new ErrorMessage(new Error(json.error), json.id);
+	}
 }

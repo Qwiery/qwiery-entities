@@ -6,6 +6,7 @@ import { Utils } from "@orbifold/utils";
 
 export   class Message {
   public typeName = "Message";
+  public isOutput = false;
   constructor(public id: string = Utils.id(), public annotations = {}) { }
 
   /**
@@ -17,6 +18,7 @@ export   class Message {
     const message = new Message();
     message.id = json.id || Utils.id();
     message.annotations = json.annotations || {};
+    message.isOutput = json.isOutput || false;
     return message;
   }
 
@@ -29,6 +31,7 @@ export   class Message {
       id: this.id,
       typeName: this.typeName,
       annotations: this.annotations,
+      isOutput: this.isOutput,
     };
   }
 }

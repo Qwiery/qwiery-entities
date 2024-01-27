@@ -44,6 +44,7 @@ export class Notebook {
 		if (!cell) {
 			throw new Error(`Cannot find cell with id ${cellId}.`);
 		}
+		message.isOutput = true;
 		cell.outputMessages.push(message);
 		return cell;
 	}
@@ -59,17 +60,21 @@ export class Notebook {
 		} else {
 			msgs = m as Message[];
 		}
+		msgs.forEach(m => m.isOutput = true);
 		cell.outputMessages = msgs;
 		return cell;
 	}
 
 	public addMessage(message: Message, referenceCellId: string | null = null,
 					  beforeOrAfter: string = "after") {
+		message.isOutput = false;
 		return this.addCell(new NotebookCell(this, message), referenceCellId, beforeOrAfter);
 	}
 
 	public addInputOutput(input: Message, output: Message, referenceCellId: string | null = null,
 						  beforeOrAfter: string = "after") {
+		input.isOutput = false;
+		output.isOutput = true;
 		const cell = new NotebookCell(this, input, [output]);
 		return this.addCell(cell, referenceCellId, beforeOrAfter);
 	}
@@ -208,6 +213,7 @@ export class Notebook {
 		if (!cell) {
 			throw new Error(`Cannot find cell with id ${message.id}.`);
 		}
+		message.isOutput = false;
 		cell.inputMessage = message;
 		return cell;
 	}
@@ -262,5 +268,22 @@ export class Notebook {
 			return;
 		}
 		this.cells.splice(index, 1);
+	}
+
+	public toJSON() {
+		return {
+			typeName: this.typeName,
+			id: this.id,
+			name: this.name,
+			description: this.description,
+			linear: this.linear,
+			cells: this.cells.map(c => c.toJSON()),
+		};
+	}
+	public static fromJson(json: any): Notebook {
+		const nb = new Notebook(json.name, json.description, json.id);
+		nb.linear = json.linear;
+		nb._cells = json.cells.map((c: any) => NotebookCell.fromJson(c, nb));
+		return nb;
 	}
 }

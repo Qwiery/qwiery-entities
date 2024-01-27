@@ -1,5 +1,5 @@
 import { Utils } from "@orbifold/utils";
-import { Message, Notebook } from "..";
+import { Message, MessageFactory, Notebook } from "..";
 import _ from "lodash";
 import { DebugMessage } from "~/messages/DebugMessage";
 
@@ -20,6 +20,8 @@ export class NotebookCell {
 	public y: number = 0;
 	public width: number = 1;
 	public height: number = 1;
+	public title: string = "";
+	public mode: string = "edit";
 
 	/**
 	 * Gets the id of the notebook cell.
@@ -76,5 +78,35 @@ export class NotebookCell {
 				throw new Error("The output messages should be output messages.");
 			}
 		}
+	}
+
+	public toJSON(): any {
+		return {
+			typeName: this.typeName,
+			id: this.id,
+			inputMessage: this.inputMessage.toJSON(),
+			outputMessages: this.outputMessages.map(m => m.toJSON()),
+			x: this.x,
+			y: this.y,
+			width: this.width,
+			height: this.height,
+			title: this.title,
+			mode: this.mode,
+		};
+	}
+
+	static fromJson(json: any, nb): NotebookCell {
+		const cell = new NotebookCell(
+			nb,
+			MessageFactory.fromJson(json.inputMessage),
+			json.outputMessages.map((m: any) => MessageFactory.fromJson(m)),
+		);
+		cell.x = json.x;
+		cell.y = json.y;
+		cell.width = json.width;
+		cell.height = json.height;
+		cell.title = json.title;
+		cell.mode = json.mode;
+		return cell;
 	}
 }
