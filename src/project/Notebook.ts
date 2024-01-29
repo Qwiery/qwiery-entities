@@ -206,6 +206,9 @@ export class Notebook {
 		}
 		cell.outputMessages = [];
 	}
+	public clearOutputs() {
+		this.cells.forEach(c => c.outputMessages = []);
+	}
 
 
 	setInput(message: Message) {
