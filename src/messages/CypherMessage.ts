@@ -5,7 +5,7 @@ import { Message } from "./Message";
 export class CypherMessage extends Message {
 	public typeName: string = "CypherMessage";
 
-	constructor(public query: string = "", public visualization: string = "grid", id: string = Utils.id()) {
+	constructor(public query: string = "", public visualization: string = "grid", public database: string = "", id: string = Utils.id()) {
 		super(id);
 	}
 
@@ -20,7 +20,7 @@ export class CypherMessage extends Message {
 		if (Utils.isEmpty(json)) {
 			throw new Error("JSON is empty");
 		}
-		const message = new CypherMessage(json.query, json.visualization, json.id);
+		const message = new CypherMessage(json.query, json.visualization, json.database, json.id);
 		return message;
 	}
 
@@ -33,6 +33,7 @@ export class CypherMessage extends Message {
 			...super.toJSON(),
 			query: this.query,
 			visualization: this.visualization,
+			database: this.database,
 		};
 	}
 }

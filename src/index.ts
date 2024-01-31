@@ -12,6 +12,7 @@ export * from "./messages/DebugMessage";
 export * from "./messages/CypherMessage";
 
 import type { TerminalIO, ExecutionFunction, CommandFunction } from "./Types";
+
 export { TerminalIO, ExecutionFunction, CommandFunction };
 
 export * from "./project/CypherDataset";
@@ -23,3 +24,7 @@ export * from "./project/NotebookCell";
 export * from "./project/PathDataset";
 export * from "./project/Perspective";
 export * from "./project/Project";
+
+import type { Neo4jConnection } from "./project/Neo4jConnection";
+
+export { Neo4jConnection };
