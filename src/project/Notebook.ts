@@ -33,6 +33,32 @@ export class Notebook {
 	public linear: boolean = true;
 
 	/**
+	 * Whether the notebook can be saved.
+	 * @type {boolean} - True if the notebook can be saved, false otherwise.
+	 */
+	public canSave: boolean = true;
+
+	public canEditProperties: boolean = true;
+
+	/**
+	 * Whether the notebook cells can be moved.
+	 * @type {boolean} - True if the cells can be moved, false otherwise.
+	 */
+	public canMoveCells: boolean = true;
+
+	/**
+	 * Whether the notebook cells can be edited.
+	 * @type {boolean} - True if the cells can be edited, false otherwise.
+	 */
+	public canEditCells: boolean = true;
+
+	/**
+	 * The tags associated with the notebook.
+	 * @type {string[]}
+	 */
+	public tags: string[] = [];
+
+	/**
 	 * Adds an output message to the notebook.
 	 *
 	 * @param message - The message to be added as an output.
@@ -206,6 +232,7 @@ export class Notebook {
 		}
 		cell.outputMessages = [];
 	}
+
 	public clearOutputs() {
 		this.cells.forEach(c => c.outputMessages = []);
 	}
@@ -281,11 +308,27 @@ export class Notebook {
 			description: this.description,
 			linear: this.linear,
 			cells: this.cells.map(c => c.toJSON()),
+			canMoveCells: this.canMoveCells,
+			canEditCells: this.canEditCells,
+			canEditProperties: this.canEditProperties,
+			canSave: this.canSave,
+			tags: this.tags,
 		};
 	}
+
+	/**
+	 * Deserializes a notebook from a JSON object.
+	 * @param json - The JSON object to deserialize.
+	 * @return {Notebook} The deserialized notebook.
+	 */
 	public static fromJson(json: any): Notebook {
 		const nb = new Notebook(json.name, json.description, json.id);
 		nb.linear = json.linear;
+		nb.canMoveCells = json.canMoveCells;
+		nb.canEditCells = json.canEditCells;
+		nb.canEditProperties = json.canEditProperties;
+		nb.canSave = json.canSave;
+		nb.tags = json.tags;
 		nb._cells = json.cells.map((c: any) => NotebookCell.fromJson(c, nb));
 		return nb;
 	}

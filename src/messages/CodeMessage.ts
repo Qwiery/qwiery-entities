@@ -38,6 +38,7 @@ export class CodeMessage extends Message {
 		return {
 			...super.toJSON(),
 			code: this.code,
+			language: this.language
 		};
 	}
 }

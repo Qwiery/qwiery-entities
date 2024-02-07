@@ -9,6 +9,7 @@ import { ImageMessage } from "~/messages/ImageMessage";
 import { MarkdownMessage } from "~/messages/MarkdownMessage";
 import { WarningMessage } from "~/messages/WarningMessage";
 import { CypherMessage } from "~/messages/CypherMessage";
+import { CodeMessage } from "./CodeMessage";
 
 /**
  * Represents a factory class for creating different types of messages.
@@ -65,7 +66,7 @@ export class MessageFactory {
 			throw new Error("JSON is empty");
 		}
 		const mapping = {
-			"CodeMessage": CommandMessage,
+			"CodeMessage": CodeMessage,
 			"CommandMessage": CommandMessage,
 			"CypherMessage": CypherMessage,
 			"DataMessage": DataMessage,

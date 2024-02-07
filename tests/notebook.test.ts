@@ -95,6 +95,7 @@ describe("Notebooks", () => {
 
 	it("should serialize notebooks", () => {
 		const nb = new Notebook();
+		nb.tags = ["tag1", "tag2"];
 		let c = nb.addInputOutput(TextMessage.fromString("abc"), ErrorMessage.fromString("error"));
 		c.x = 42
 		c.y = 43
@@ -106,6 +107,7 @@ describe("Notebooks", () => {
 		expect(nbr.cells[0].outputMessages[0]).toBeInstanceOf(ErrorMessage);
 		expect(nbr.cells[0].x).toEqual(42);
 		expect(nbr.cells[0].y).toEqual(43);
+		expect(nbr.tags).toEqual(["tag1", "tag2"]);
 
 	});
 });
