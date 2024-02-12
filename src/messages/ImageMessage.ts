@@ -27,6 +27,8 @@ export class ImageMessage extends Message {
 		}
 		const message = new ImageMessage(json.url);
 		message.id = json.id || Utils.id();
+		message.isOutput = json.isOutput || false;
+		message.correlationId = json.correlationId;
 		return message;
 	}
 
@@ -38,6 +40,9 @@ export class ImageMessage extends Message {
 		return {
 			...super.toJSON(),
 			url: this.url,
+			isOutput: this.isOutput,
+			correlationId: this.correlationId,
+
 		};
 	}
 }

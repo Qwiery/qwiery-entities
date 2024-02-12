@@ -21,11 +21,13 @@ describe("Messages", () => {
     expect(m3.text).toEqual("abc");
 
     const cm = new CodeMessage("abc","K");
+    cm.correlationId = Math.random().toString().slice(2);
     j = cm.toJSON();
     const cm2 = CodeMessage.fromJson(j);
     expect(cm2).toBeInstanceOf(CodeMessage);
     expect(cm2.code).toEqual("abc");
     expect(cm2.language).toEqual("K");
+    expect(cm2.correlationId).toEqual(cm.correlationId);
 
   });
 });

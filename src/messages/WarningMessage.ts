@@ -26,6 +26,8 @@ export class WarningMessage extends TextMessage {
     }
     const message = new WarningMessage(json.text);
     message.id = json.id || Utils.id();
+    message.isOutput = json.isOutput || false;
+    message.correlationId = json.correlationId;
     return message;
   }
 
@@ -37,6 +39,7 @@ export class WarningMessage extends TextMessage {
     return {
       typeName: this.typeName,
       ...super.toJSON()
+
     };
   }
 }

@@ -21,6 +21,8 @@ export class CypherMessage extends Message {
 			throw new Error("JSON is empty");
 		}
 		const message = new CypherMessage(json.query, json.visualization, json.database, json.id);
+		message.isOutput = json.isOutput || false;
+		message.correlationId = json.correlationId;
 		return message;
 	}
 
@@ -34,6 +36,9 @@ export class CypherMessage extends Message {
 			query: this.query,
 			visualization: this.visualization,
 			database: this.database,
+			isOutput: this.isOutput,
+			correlationId: this.correlationId,
+
 		};
 	}
 }

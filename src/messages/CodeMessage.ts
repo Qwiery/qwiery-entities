@@ -26,6 +26,8 @@ export class CodeMessage extends Message {
 			throw new Error("JSON is empty");
 		}
 		const message = new CodeMessage(json.code, json.language);
+		message.isOutput = json.isOutput || false;
+		message.correlationId = json.correlationId;
 		message.id = json.id || Utils.id();
 		return message;
 	}
@@ -38,7 +40,9 @@ export class CodeMessage extends Message {
 		return {
 			...super.toJSON(),
 			code: this.code,
-			language: this.language
+			language: this.language,
+			isOutput: this.isOutput,
+			correlationId: this.correlationId,
 		};
 	}
 }
