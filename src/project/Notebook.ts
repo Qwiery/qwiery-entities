@@ -188,7 +188,7 @@ export class Notebook {
 	 * Note that the order is the same as the order of the cells.
 	 * @returns {string[]} An array of cell IDs.
 	 */
-	public get idSequence() {
+	public get idSequence(): string[] {
 		return this.cells.map((c) => c.id);
 	}
 
@@ -197,7 +197,10 @@ export class Notebook {
 	 * @param id - The ID of the cell to retrieve.
 	 * @returns The cell with the specified ID, or null if not found.
 	 */
-	public getCellById(id: string) {
+	public getCellById(id: string | null) {
+		if (!id) {
+			return null;
+		}
 		return this.cells.find((c) => c.id === id) || null;
 	}
 
@@ -211,7 +214,10 @@ export class Notebook {
 	 * @param id - The ID of the cell to check.
 	 * @returns True if a cell with the specified ID exists, false otherwise.
 	 */
-	public cellIdExists(id: string) {
+	public cellIdExists(id: string | null) {
+		if (!id) {
+			return false;
+		}
 		return this.cells.some((c) => c.id === id);
 	}
 
@@ -220,7 +226,10 @@ export class Notebook {
 	 * @param id - The ID of the cell to check.
 	 * @returns True if the cell has output, false otherwise.
 	 */
-	public cellHasOutput(id: string) {
+	public cellHasOutput(id: string | null) {
+		if (!id) {
+			return false;
+		}
 		const cell = this.getCellById(id);
 		if (!cell) {
 			return false;
@@ -234,7 +243,10 @@ export class Notebook {
 	 * @param id - The ID of the cell.
 	 * @returns The output of the cell.
 	 */
-	public getOutputMessages(id: string) {
+	public getOutputMessages(id: string | null) {
+		if (!id) {
+			return null;
+		}
 		const cell = this.getCellById(id);
 		if (!cell) {
 			return null;
@@ -247,7 +259,10 @@ export class Notebook {
 	 * @param id - The id of the output cell.
 	 * @returns The output message, or null if the output cell is not found.
 	 */
-	public getOutputMessage(id: string) {
+	public getOutputMessage(id: string | null) {
+		if (!id) {
+			return null;
+		}
 		const output = this.getOutputMessages(id);
 		if (!output) {
 			return null;
@@ -259,7 +274,10 @@ export class Notebook {
 	 * Deletes the output cell associated with the specified input cell ID.
 	 * @param cellId
 	 */
-	public clearOutput(cellId: string) {
+	public clearOutput(cellId: string | null) {
+		if (!cellId) {
+			return;
+		}
 		const cell = this.getCellById(cellId);
 		if (!cell) {
 			return;
@@ -282,7 +300,10 @@ export class Notebook {
 		return cell;
 	}
 
-	public deleteOutputMessage(messageId: string) {
+	public deleteOutputMessage(messageId: string | null) {
+		if (!messageId) {
+			return;
+		}
 		const cell = this.getCellById(messageId);
 		if (!cell) {
 			throw new Error(`Cannot find cell with id ${messageId}.`);
