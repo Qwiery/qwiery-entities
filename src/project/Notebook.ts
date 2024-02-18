@@ -38,6 +38,16 @@ export class Notebook {
 	 */
 	public canSave: boolean = true;
 
+	/**
+	 * Whether the notebook can be deleted.
+	 * @type {boolean}
+	 */
+	public canDelete: boolean = true;
+
+	/**
+	 * Whether the notebook properties can be edited.
+	 * @type {boolean}
+	 */
 	public canEditProperties: boolean = true;
 
 	/**
@@ -53,10 +63,34 @@ export class Notebook {
 	public canEditCells: boolean = true;
 
 	/**
+	 * Whether the notebook cells can be resized.
+	 * @type {boolean}
+	 */
+	public canResizeCells: boolean = true;
+
+	/**
+	 * Whether the notebook cells can be executed.
+	 * @type {boolean}
+	 */
+	public canExecuteCells: boolean = true;
+
+	/**
+	 * Whether the notebook cells can be deleted.
+	 * @type {boolean}
+	 */
+	public canDeleteCells: boolean = true;
+
+	/**
 	 * The tags associated with the notebook.
 	 * @type {string[]}
 	 */
 	public tags: string[] = [];
+
+	/**
+	 * The Id of the cell that should be executed first when the notebook is run.
+	 * @type {string | null}
+	 */
+	public initializationCellId: string | null = null;
 
 	/**
 	 * Adds an output message to the notebook.
@@ -300,18 +334,23 @@ export class Notebook {
 		this.cells.splice(index, 1);
 	}
 
-	public toJSON() {
+	public toJSON(excludeOutput = false) {
 		return {
 			typeName: this.typeName,
 			id: this.id,
 			name: this.name,
 			description: this.description,
 			linear: this.linear,
-			cells: this.cells.map(c => c.toJSON()),
+			cells: this.cells.map(c => c.toJSON(excludeOutput)),
 			canMoveCells: this.canMoveCells,
 			canEditCells: this.canEditCells,
+			canResizeCells: this.canResizeCells,
+			canDeleteCells: this.canDeleteCells,
 			canEditProperties: this.canEditProperties,
+			canExecuteCells: this.canExecuteCells,
 			canSave: this.canSave,
+			canDelete: this.canDelete,
+			initializationCellId: this.initializationCellId,
 			tags: this.tags,
 		};
 	}
@@ -326,8 +365,13 @@ export class Notebook {
 		nb.linear = json.linear;
 		nb.canMoveCells = json.canMoveCells;
 		nb.canEditCells = json.canEditCells;
+		nb.canResizeCells = json.canResizeCells;
+		nb.canDeleteCells = json.canDeleteCells;
 		nb.canEditProperties = json.canEditProperties;
+		nb.canExecuteCells = json.canExecuteCells;
 		nb.canSave = json.canSave;
+		nb.canDelete = json.canDelete;
+		nb.initializationCellId = json.initializationCellId;
 		nb.tags = json.tags;
 		nb._cells = json.cells.map((c: any) => NotebookCell.fromJson(c, nb));
 		return nb;

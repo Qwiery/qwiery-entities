@@ -15,7 +15,11 @@ export class NotebookCell {
 	 * This is null by default, and is set when the cell is executed.
 	 */
 	public executionId: string | null = null;
-
+	public canResize: boolean = true;
+	public canMove: boolean = true;
+	public canEdit: boolean = true;
+	public canDelete: boolean = true;
+	public canExecute: boolean = true;
 	public x: number = 0;
 	public y: number = 0;
 	public width: number = 1;
@@ -80,18 +84,23 @@ export class NotebookCell {
 		}
 	}
 
-	public toJSON(): any {
+	public toJSON(excludeOutput: boolean = false): any {
 		return {
 			typeName: this.typeName,
 			id: this.id,
 			inputMessage: this.inputMessage.toJSON(),
-			outputMessages: this.outputMessages.map(m => m.toJSON()),
+			outputMessages: excludeOutput ? [] : this.outputMessages.map(m => m.toJSON()),
 			x: this.x,
 			y: this.y,
 			width: this.width,
 			height: this.height,
 			title: this.title,
 			mode: this.mode,
+			canResize: this.canResize,
+			canMove: this.canMove,
+			canEdit: this.canEdit,
+			canDelete: this.canDelete,
+			canExecute: this.canExecute,
 		};
 	}
 
@@ -107,6 +116,11 @@ export class NotebookCell {
 		cell.height = json.height;
 		cell.title = json.title;
 		cell.mode = json.mode;
+		cell.canResize = json.canResize;
+		cell.canMove = json.canMove;
+		cell.canEdit = json.canEdit;
+		cell.canDelete = json.canDelete;
+		cell.canExecute = json.canExecute;
 		return cell;
 	}
 }
