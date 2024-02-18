@@ -1,3 +1,9 @@
+#### 4.0.13 (2024-02-18)
+
+##### Bug Fixes
+
+* **notebook:**  allowing for null params makes it somewhat easier at the client. ([d255ae5e](https://github.com/Qwiery/qwiery-entities/commit/d255ae5e2557cebaf1e38edd5899cceb81f310c2))
+
 #### 4.0.12 (2024-02-18)
 
 ##### New Features
